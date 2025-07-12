@@ -1,17 +1,16 @@
-const barcodeData = {}; // 條碼: { count: 數量, time: 最後時間 }
+const barcodeData = {}; // 條碼: { count, time, lastScanTimestamp }
 const tableBody = document.getElementById("barcodeTableBody");
-let lastScanned = "";
+const beepSound = document.getElementById("beepSound");
 
 function formatTime(date) {
 const pad = n => n.toString().padStart(2, '0');
-return `${date.getFullYear()}/${pad(date.getMonth()+1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+return `${date.getFullYear()}/${pad(date.getMonth()+1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
 function updateTable() {
 tableBody.innerHTML = "";
 for (const [code, data] of Object.entries(barcodeData)) {
     const row = document.createElement("tr");
-
     row.innerHTML = `
     <td>${code}</td>
     <td>${data.count}</td>
@@ -43,7 +42,7 @@ const html5QrCode = new Html5Qrcode("reader");
 html5QrCode.start(
 { facingMode: "environment" },
 {
-    fps: 10,
+    fps: 15,
     qrbox: 400,
     formatsToSupport: [
     Html5QrcodeSupportedFormats.QR_CODE,
@@ -60,23 +59,30 @@ html5QrCode.start(
     ]
 },
 (decodedText) => {
-    if (decodedText && decodedText !== lastScanned) {
-    lastScanned = decodedText;
     const now = new Date();
-    if (barcodeData[decodedText]) {
-        barcodeData[decodedText].count++;
-        barcodeData[decodedText].time = formatTime(now);
+    const nowTime = now.getTime();
+    const cooldown = 800; // 每筆條碼間隔多久才允許重複掃（毫秒）
+
+    const existing = barcodeData[decodedText];
+    if (!existing || (nowTime - existing.lastScanTimestamp > cooldown)) {
+    // 播放音效
+    beepSound.play();
+
+    if (existing) {
+        existing.count++;
+        existing.time = formatTime(now);
+        existing.lastScanTimestamp = nowTime;
     } else {
         barcodeData[decodedText] = {
         count: 1,
-        time: formatTime(now)
+        time: formatTime(now),
+        lastScanTimestamp: nowTime
         };
     }
     updateTable();
-    setTimeout(() => { lastScanned = ""; }, 1000);
     }
 },
 (error) => {
-    // 可忽略錯誤
+    // 忽略錯誤
 }
 );
