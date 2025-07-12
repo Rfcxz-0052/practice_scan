@@ -44,7 +44,7 @@ html5QrCode.start(
 { facingMode: "environment" },
 {
     fps: 10,
-    qrbox: 250,
+    qrbox: 400,
     formatsToSupport: [
     Html5QrcodeSupportedFormats.QR_CODE,
     Html5QrcodeSupportedFormats.EAN_13,
