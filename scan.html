@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>條碼掃描統計器（含時間/編輯/刪除）</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <link rel="stylesheet" href="./styles.css"/>
+</head>
+<body>
+
+<h2>條碼掃描統計器</h2>
+<div id="reader"></div>
+<table>
+  <thead>
+    <tr>
+      <th>條碼</th>
+      <th>數量</th>
+      <th>最後掃描時間</th>
+      <th>編輯</th>
+      <th>刪除</th>
+    </tr>
+  </thead>
+  <tbody id="barcodeTableBody">
+    <!-- 條碼記錄自動加入 -->
+  </tbody>
+</table>
+
+<script src="./script.js"></script>
+
+
+</body>
+</html>
