@@ -2,42 +2,36 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>條碼掃描器</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>條碼掃描記錄</title>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-  <link rel="stylesheet" href="./styles.css"/>
+  <style>
+    body { font-family: sans-serif; padding: 1em; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1em; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
+    input.inline-input { width: 80px; }
+    button { padding: 4px 8px; }
+  </style>
 </head>
 <body>
-  <h2>📷 條碼掃描器</h2>
-  <div id="reader"></div>
 
-  <!-- 彈出視窗 -->
-  <div id="overlay"></div>
-  <div id="dialog">
-    <p>條碼：<span id="barcodeDisplay"></span></p>
-    <p>
-      數量：<input type="number" id="quantityInput" value="1" min="1" />
-    </p>
-    <p>
-      單號：<input type="text" id="orderInput" />
-    </p>
-    <button onclick="confirmEntry()">✅ 確認</button>
-    <button onclick="resetScan()">🔄 重新掃描</button>
-  </div>
+<h2>📷 條碼掃描器</h2>
+<div id="reader" style="width: 300px;"></div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>條碼</th>
-        <th>數量</th>
-        <th>單號</th>
-        <th>時間</th>
-        <th>刪除</th>
-      </tr>
-    </thead>
-    <tbody id="barcodeTableBody"></tbody>
-  </table>
+<table>
+  <thead>
+    <tr>
+      <th>條碼</th>
+      <th>數量</th>
+      <th>時間</th>
+      <th>單號</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody id="barcode-table-body"></tbody>
+</table>
 
-  <script src="./script.js"></script>
+<script src="./script.js"></script>
+
 </body>
 </html>
