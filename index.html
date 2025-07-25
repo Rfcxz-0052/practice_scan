@@ -2,31 +2,46 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>靈敏條碼掃描器</title>
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  <title>條碼掃描器（帶輸入視窗）</title>
   <link rel="stylesheet" href="./styles.css"/>
+  <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
 
-<h2>條碼掃描統計器（靈敏優化版）</h2>
+<h2>條碼掃描統計器（輸入數量與單號）</h2>
 <div id="reader"></div>
+
 <table>
   <thead>
     <tr>
       <th>條碼</th>
       <th>數量</th>
-      <th>最後掃描時間</th>
-      <th>編輯</th>
+      <th>單號</th>
+      <th>掃描時間</th>
       <th>刪除</th>
     </tr>
   </thead>
   <tbody id="barcodeTableBody"></tbody>
 </table>
 
-<!-- 掃描成功音效 -->
+<!-- 彈窗區塊 -->
+<div id="popup">
+  <div id="popupContent">
+    <p><strong>掃描到的條碼：</strong><span id="scannedCodeText"></span></p>
+    <label>數量：
+      <input type="number" id="quantityInput" min="1" />
+    </label>
+    <label>單號：
+      <input type="text" id="orderInput" />
+    </label>
+    <button id="confirmBtn">✅ 確認</button>
+    <button id="cancelBtn">🔄 重新掃描</button>
+  </div>
+</div>
+
 <audio id="beepSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
 
-<script src="script.js"></script>
+<script src="./script.js"></script>
 
 </body>
 </html>
