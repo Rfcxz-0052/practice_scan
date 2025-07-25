@@ -1,4 +1,46 @@
-video { width: 100%; max-width: 400px; border: 1px solid #ccc; }
-table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-input[type="number"] { width: 60px; }
+body {
+  font-family: sans-serif;
+  padding: 10px;
+}
+#reader {
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+th, td {
+  border: 1px solid #ccc;
+  padding: 6px;
+  text-align: center;
+}
+input[type="number"], input[type="text"] {
+  width: 60px;
+}
+#dialog {
+  display: none;
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -30%);
+  background: white;
+  border: 2px solid #333;
+  padding: 20px;
+  z-index: 9999;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+#overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 9998;
+}
+button {
+  margin: 5px;
+  padding: 6px 10px;
+}

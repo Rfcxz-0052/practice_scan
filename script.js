@@ -1,96 +1,101 @@
-const selectedDeviceId = null;
-const codeReader = new ZXing.BrowserMultiFormatReader();
-let currentCode = '';
-const barcodeData = {}; // 儲存資料
+let lastScannedCode = "";
+const barcodeData = [];
 
-// 啟動相機
-codeReader
-    .listVideoInputDevices()
-    .then(videoInputDevices => {
-    codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
-        if (result) {
-        currentCode = result.text;
-        pauseScan();
-        showDialog(currentCode);
-        }
-    });
-    })
-    .catch(err => console.error(err));
+const html5QrCode = new Html5Qrcode("reader");
 
-function pauseScan() {
-    codeReader.reset();
-    document.getElementById('video').style.display = 'none';
-}
-
-function resumeScan() {
-    document.getElementById('dialog').style.display = 'none';
-    document.getElementById('video').style.display = 'block';
-    document.getElementById('qtyInput').value = 1;
-    document.getElementById('orderInput').value = '';
-    codeReader
-    .decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
-        if (result) {
-        currentCode = result.text;
-        pauseScan();
-        showDialog(currentCode);
-        }
+function startScanner() {
+    Html5Qrcode.getCameras().then(devices => {
+    if (devices && devices.length) {
+        const cameraId = devices[0].id;
+        html5QrCode.start(
+        cameraId,
+        {
+            fps: 10,
+            qrbox: { width: 250, height: 150 }
+        },
+        onScanSuccess,
+        errorMessage => {}
+        );
+    }
+    }).catch(err => {
+    alert("無法存取相機：" + err);
     });
 }
 
-function showDialog(code) {
-    document.getElementById('scannedCode').textContent = code;
-    document.getElementById('dialog').style.display = 'block';
+function onScanSuccess(decodedText, decodedResult) {
+    if (decodedText === lastScannedCode) return;
+    lastScannedCode = decodedText;
+
+    document.getElementById("barcodeDisplay").innerText = decodedText;
+    document.getElementById("quantityInput").value = 1;
+    document.getElementById("orderInput").value = "";
+
+    document.getElementById("dialog").style.display = "block";
+    document.getElementById("overlay").style.display = "block";
 }
 
 function confirmEntry() {
-    const qty = parseInt(document.getElementById('qtyInput').value, 10);
-    const order = document.getElementById('orderInput').value.trim();
-    const now = new Date().toLocaleString();
+    const code = lastScannedCode;
+    const quantity = parseInt(document.getElementById("quantityInput").value);
+    const order = document.getElementById("orderInput").value;
+    const time = formatTime(new Date());
 
-    if (!barcodeData[currentCode]) {
-    barcodeData[currentCode] = { count: qty, order, time: now };
-    } else {
-    barcodeData[currentCode].count += qty;
-    barcodeData[currentCode].order = order || barcodeData[currentCode].order;
-    barcodeData[currentCode].time = now;
+    if (!code || !quantity || quantity <= 0) {
+    alert("請輸入有效數量");
+    return;
     }
 
+    barcodeData.push({ code, quantity, order, time });
     updateTable();
-    resumeScan();
+    resetScan();
+}
+
+function resetScan() {
+    document.getElementById("dialog").style.display = "none";
+    document.getElementById("overlay").style.display = "none";
+    lastScannedCode = "";
+}
+
+function formatTime(date) {
+    return date.toLocaleString("zh-TW");
 }
 
 function updateTable() {
-    const tableBody = document.getElementById('barcodeTableBody');
-    tableBody.innerHTML = '';
-
-    Object.entries(barcodeData).forEach(([code, data]) => {
-    const row = document.createElement('tr');
+    const tableBody = document.getElementById("barcodeTableBody");
+    tableBody.innerHTML = "";
+    barcodeData.forEach((item, index) => {
+    const row = document.createElement("tr");
     row.innerHTML = `
-        <td>${code}</td>
+        <td>${item.code}</td>
         <td>
-        <input type="number" min="1" value="${data.count}"
-            onchange="updateCount('${code}', this.value)">
+        <input type="number" value="${item.quantity}" min="1"
+            onchange="onQuantityChange(${index}, this.value)" />
         </td>
-        <td>${data.order}</td>
-        <td>${data.time}</td>
-        <td><button onclick="deleteBarcode('${code}')">❌</button></td>
+        <td>${item.order}</td>
+        <td>${item.time}</td>
+        <td><button onclick="deleteRow(${index})">❌</button></td>
     `;
     tableBody.appendChild(row);
     });
 }
 
-function updateCount(code, newValue) {
-    const count = Number(newValue);
-    if (!isNaN(count) && count >= 0) {
-    barcodeData[code].count = count;
-    barcodeData[code].time = new Date().toLocaleString();
+function onQuantityChange(index, value) {
+    const quantity = parseInt(value);
+    if (!quantity || quantity <= 0) {
+    alert("請輸入有效的數量");
     updateTable();
-    } else {
-    alert('請輸入有效的數字');
+    return;
+    }
+    barcodeData[index].quantity = quantity;
+    barcodeData[index].time = formatTime(new Date());
+    updateTable();
+}
+
+function deleteRow(index) {
+    if (confirm("確定要刪除此筆資料？")) {
+    barcodeData.splice(index, 1);
+    updateTable();
     }
 }
 
-function deleteBarcode(code) {
-    delete barcodeData[code];
-    updateTable();
-}
+startScanner();
