@@ -1,102 +1,145 @@
-  const barcodeData = [];
-  const tableBody = document.getElementById("barcodeTableBody");
-  const beepSound = document.getElementById("beepSound");
+const barcodeData = [];
+const tableBody = document.getElementById("barcodeTableBody");
+const beepSound = document.getElementById("beepSound");
 
-  const popup = document.getElementById("popup");
-  const scannedCodeText = document.getElementById("scannedCodeText");
-  const quantityInput = document.getElementById("quantityInput");
-  const orderInput = document.getElementById("orderInput");
-  const confirmBtn = document.getElementById("confirmBtn");
-  const cancelBtn = document.getElementById("cancelBtn");
+const popup = document.getElementById("popup");
+const scannedCodeText = document.getElementById("scannedCodeText");
+const quantityInput = document.getElementById("quantityInput");
+const orderInput = document.getElementById("orderInput");
+const confirmBtn = document.getElementById("confirmBtn");
+const cancelBtn = document.getElementById("cancelBtn");
 
-  let currentScannedCode = "";
+let currentScannedCode = "";
 
-  function formatTime(date) {
-    const pad = n => n.toString().padStart(2, '0');
-    return `${date.getFullYear()}/${pad(date.getMonth()+1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-  }
+function formatTime(date) {
+const pad = n => n.toString().padStart(2, '0');
+return `${date.getFullYear()}/${pad(date.getMonth()+1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
 
-  function updateTable() {
-    tableBody.innerHTML = "";
-    barcodeData.forEach((item, index) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${item.code}</td>
-        <td>${item.quantity}</td>
-        <td>${item.order}</td>
-        <td>${item.time}</td>
-        <td><button onclick="deleteRow(${index})">❌</button></td>
-      `;
-      tableBody.appendChild(row);
-    });
-  }
+function updateTable() {
+tableBody.innerHTML = "";
+barcodeData.forEach((item, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+    <td>${item.code}</td>
+    <td>${item.quantity}</td>
+    <td>${item.order}</td>
+    <td>${item.time}</td>
+    <td><button onclick="deleteRow(${index})">❌</button></td>
+    `;
+    tableBody.appendChild(row);
+});
+}
 
-  function deleteRow(index) {
-    if (confirm("確定要刪除這筆資料？")) {
-      barcodeData.splice(index, 1);
-      updateTable();
-    }
-  }
-
-  function showPopup(code) {
-    currentScannedCode = code;
-    scannedCodeText.textContent = code;
-    quantityInput.value = "";
-    orderInput.value = "";
-    popup.style.display = "flex";
-  }
-
-  function hidePopup() {
-    popup.style.display = "none";
-    currentScannedCode = "";
-  }
-
-  confirmBtn.addEventListener("click", () => {
-    const quantity = parseInt(quantityInput.value);
-    const order = orderInput.value.trim();
-    if (!quantity || quantity <= 0 || order === "") {
-      alert("請輸入正確的數量和單號");
-      return;
-    }
-
-    beepSound.play();
-    barcodeData.push({
-      code: currentScannedCode,
-      quantity: quantity,
-      order: order,
-      time: formatTime(new Date())
-    });
+function deleteRow(index) {
+if (confirm("確定要刪除這筆資料？")) {
+    barcodeData.splice(index, 1);
     updateTable();
-    hidePopup();
-  });
+}
+}
 
-  cancelBtn.addEventListener("click", () => {
-    hidePopup();
-  });
+function showPopup(code) {
+currentScannedCode = code;
+scannedCodeText.textContent = code;
+quantityInput.value = "";
+orderInput.value = "";
+popup.style.display = "flex";
+}
 
-  const html5QrCode = new Html5Qrcode("reader");
+function hidePopup() {
+popup.style.display = "none";
+currentScannedCode = "";
+}
 
-  html5QrCode.start(
-    { facingMode: "environment" },
-    {
-      fps: 10,
-      qrbox: 400,
-      formatsToSupport: [
-        Html5QrcodeSupportedFormats.QR_CODE,
-        Html5QrcodeSupportedFormats.EAN_13,
-        Html5QrcodeSupportedFormats.EAN_8,
-        Html5QrcodeSupportedFormats.UPC_A,
-        Html5QrcodeSupportedFormats.UPC_E,
-        Html5QrcodeSupportedFormats.CODE_128,
-        Html5QrcodeSupportedFormats.CODE_39,
-        Html5QrcodeSupportedFormats.ITF
-      ]
-    },
-    (decodedText) => {
-      html5QrCode.pause(); // 暫停掃描直到處理完
-      showPopup(decodedText);
-    },
-    (error) => {
-      // 忽略錯誤
-    }
-  );
+confirmBtn.addEventListener("click", () => {
+const quantity = parseInt(quantityInput.value);
+const order = orderInput.value.trim();
+if (!quantity || quantity <= 0 || order === "") {
+    alert("請輸入正確的數量和單號");
+    return;
+}
+
+beepSound.play();
+barcodeData.push({
+    code: currentScannedCode,
+    quantity: quantity,
+    order: order,
+    time: formatTime(new Date())
+});
+updateTable();
+hidePopup();
+});
+
+cancelBtn.addEventListener("click", () => {
+hidePopup();
+});
+
+const html5QrCode = new Html5Qrcode("reader");
+
+html5QrCode.start(
+{ facingMode: "environment" },
+{
+    fps: 10,
+    qrbox: 400,
+    formatsToSupport: [
+    Html5QrcodeSupportedFormats.QR_CODE,
+    Html5QrcodeSupportedFormats.EAN_13,
+    Html5QrcodeSupportedFormats.EAN_8,
+    Html5QrcodeSupportedFormats.UPC_A,
+    Html5QrcodeSupportedFormats.UPC_E,
+    Html5QrcodeSupportedFormats.CODE_128,
+    Html5QrcodeSupportedFormats.CODE_39,
+    Html5QrcodeSupportedFormats.ITF
+    ]
+},
+(decodedText) => {
+    html5QrCode.pause(); // 暫停掃描直到處理完
+    showPopup(decodedText);
+},
+(error) => {
+    // 忽略錯誤
+}
+);
+
+// 編輯儲存格的功能
+tableBody.addEventListener("click", function (e) {
+  const target = e.target;
+  if (target.tagName === "TD" && target.parentElement.tagName === "TR") {
+    const rowIndex = target.parentElement.rowIndex - 1; // 減1因為thead佔一行
+    const cellIndex = target.cellIndex;
+
+    // 最後一欄是刪除鈕，不能編輯
+    if (cellIndex === 4) return;
+
+    const oldValue = target.textContent;
+    const input = document.createElement("input");
+    input.value = oldValue;
+    input.style.width = "100%";
+    target.textContent = "";
+    target.appendChild(input);
+    input.focus();
+
+    input.addEventListener("blur", function () {
+      const newValue = input.value.trim();
+      if (newValue !== "") {
+        // 根據欄位更新 barcodeData
+        if (cellIndex === 0) barcodeData[rowIndex].code = newValue;
+        if (cellIndex === 1) barcodeData[rowIndex].quantity = parseInt(newValue);
+        if (cellIndex === 2) barcodeData[rowIndex].order = newValue;
+        if (cellIndex === 3) barcodeData[rowIndex].time = newValue;
+
+        updateTable();
+      } else {
+        target.textContent = oldValue; // 若空白則還原
+      }
+    });
+
+    input.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") input.blur();
+      if (event.key === "Escape") {
+        input.value = oldValue;
+        input.blur();
+      }
+    });
+  }
+});
