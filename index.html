@@ -2,34 +2,44 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>條碼掃描記錄</title>
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-  <style>
-    body { font-family: sans-serif; padding: 1em; }
-    table { width: 100%; border-collapse: collapse; margin-top: 1em; }
-    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
-    input.inline-input { width: 80px; }
-    button { padding: 4px 8px; }
-  </style>
+  <title>條碼掃描器（帶輸入視窗）</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <link rel="stylesheet" href="./styles.css"/>
 </head>
 <body>
 
-<h2>📷 條碼掃描器</h2>
-<div id="reader" style="width: 300px;"></div>
+<h2>條碼掃描統計器（輸入數量與單號）</h2>
+<div id="reader"></div>
 
 <table>
   <thead>
     <tr>
       <th>條碼</th>
       <th>數量</th>
-      <th>時間</th>
       <th>單號</th>
-      <th>操作</th>
+      <th>掃描時間</th>
+      <th>刪除</th>
     </tr>
   </thead>
-  <tbody id="barcode-table-body"></tbody>
+  <tbody id="barcodeTableBody"></tbody>
 </table>
+
+<!-- 彈窗區塊 -->
+<div id="popup">
+  <div id="popupContent">
+    <p><strong>掃描到的條碼：</strong><span id="scannedCodeText"></span></p>
+    <label>數量：
+      <input type="number" id="quantityInput" min="1" />
+    </label>
+    <label>單號：
+      <input type="text" id="orderInput" />
+    </label>
+    <button id="confirmBtn">✅ 確認</button>
+    <button id="cancelBtn">🔄 重新掃描</button>
+  </div>
+</div>
+
+<audio id="beepSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
 
 <script src="./script.js"></script>
 

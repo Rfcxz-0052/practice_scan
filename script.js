@@ -1,91 +1,102 @@
-  const barcodeData = {};
-  const tableBody = document.getElementById("barcode-table-body");
+  const barcodeData = [];
+  const tableBody = document.getElementById("barcodeTableBody");
+  const beepSound = document.getElementById("beepSound");
 
-  function showInputDialog(code) {
-    const quantity = prompt("請輸入數量：", "1");
-    if (quantity === null || isNaN(quantity) || Number(quantity) < 1) return;
+  const popup = document.getElementById("popup");
+  const scannedCodeText = document.getElementById("scannedCodeText");
+  const quantityInput = document.getElementById("quantityInput");
+  const orderInput = document.getElementById("orderInput");
+  const confirmBtn = document.getElementById("confirmBtn");
+  const cancelBtn = document.getElementById("cancelBtn");
 
-    const serial = prompt("請輸入單號（可選）：", "");
-    if (serial === null) return;
+  let currentScannedCode = "";
 
-    const time = new Date().toLocaleString();
-
-    if (!barcodeData[code]) {
-      barcodeData[code] = { count: Number(quantity), time, serial };
-    } else {
-      barcodeData[code].count += Number(quantity);
-      barcodeData[code].time = time;
-      if (serial) barcodeData[code].serial = serial;
-    }
-
-    updateTable();
+  function formatTime(date) {
+    const pad = n => n.toString().padStart(2, '0');
+    return `${date.getFullYear()}/${pad(date.getMonth()+1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
   }
 
   function updateTable() {
     tableBody.innerHTML = "";
-    for (const [code, data] of Object.entries(barcodeData)) {
+    barcodeData.forEach((item, index) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${code}</td>
-        <td>
-          <input type="number" class="inline-input" value="${data.count}" min="0"
-            onchange="changeQuantity('${code}', this.value)">
-        </td>
-        <td>${data.time}</td>
-        <td>
-          <input type="text" class="inline-input" value="${data.serial || ''}"
-            onchange="changeSerial('${code}', this.value)">
-        </td>
-        <td><button onclick="deleteBarcode('${code}')">❌ 刪除</button></td>
+        <td>${item.code}</td>
+        <td>${item.quantity}</td>
+        <td>${item.order}</td>
+        <td>${item.time}</td>
+        <td><button onclick="deleteRow(${index})">❌</button></td>
       `;
       tableBody.appendChild(row);
-    }
+    });
   }
 
-  function changeQuantity(code, value) {
-    const val = parseInt(value, 10);
-    if (!isNaN(val) && val >= 0) {
-      barcodeData[code].count = val;
+  function deleteRow(index) {
+    if (confirm("確定要刪除這筆資料？")) {
+      barcodeData.splice(index, 1);
       updateTable();
     }
   }
 
-  function changeSerial(code, value) {
-    barcodeData[code].serial = value;
+  function showPopup(code) {
+    currentScannedCode = code;
+    scannedCodeText.textContent = code;
+    quantityInput.value = "";
+    orderInput.value = "";
+    popup.style.display = "flex";
+  }
+
+  function hidePopup() {
+    popup.style.display = "none";
+    currentScannedCode = "";
+  }
+
+  confirmBtn.addEventListener("click", () => {
+    const quantity = parseInt(quantityInput.value);
+    const order = orderInput.value.trim();
+    if (!quantity || quantity <= 0 || order === "") {
+      alert("請輸入正確的數量和單號");
+      return;
+    }
+
+    beepSound.play();
+    barcodeData.push({
+      code: currentScannedCode,
+      quantity: quantity,
+      order: order,
+      time: formatTime(new Date())
+    });
     updateTable();
-  }
+    hidePopup();
+  });
 
-  function deleteBarcode(code) {
-    if (confirm("確定要刪除這筆資料嗎？")) {
-      delete barcodeData[code];
-      updateTable();
-    }
-  }
+  cancelBtn.addEventListener("click", () => {
+    hidePopup();
+  });
 
-  // 啟動相機掃描器
   const html5QrCode = new Html5Qrcode("reader");
 
-  Html5Qrcode.getCameras().then(devices => {
-    if (devices && devices.length) {
-      const cameraId = devices[0].id;
-      html5QrCode.start(
-        cameraId,
-        {
-          fps: 10,
-          qrbox: { width: 300, height: 200 }
-        },
-        (decodedText, decodedResult) => {
-          html5QrCode.stop(); // 停止掃描器以防重複掃描
-          showInputDialog(decodedText);
-          setTimeout(() => {
-            html5QrCode.start(cameraId, { fps: 10, qrbox: { width: 300, height: 200 } }, arguments.callee);
-          }, 500);
-        },
-        errorMessage => {
-          // 可以忽略錯誤訊息
-        }
-      );
+  html5QrCode.start(
+    { facingMode: "environment" },
+    {
+      fps: 10,
+      qrbox: 400,
+      formatsToSupport: [
+        Html5QrcodeSupportedFormats.QR_CODE,
+        Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E,
+        Html5QrcodeSupportedFormats.CODE_128,
+        Html5QrcodeSupportedFormats.CODE_39,
+        Html5QrcodeSupportedFormats.ITF
+      ]
+    },
+    (decodedText) => {
+      html5QrCode.pause(); // 暫停掃描直到處理完
+      showPopup(decodedText);
+    },
+    (error) => {
+      // 忽略錯誤
     }
-  }).catch(err => {
-    alert("無法存取相機：" + err);
-  });
+  );
