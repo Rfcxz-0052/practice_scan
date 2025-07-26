@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>條碼掃描器（帶輸入視窗）</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="./styles.css"/>
 </head>
 <body>
@@ -23,6 +24,8 @@
   </thead>
   <tbody id="barcodeTableBody"></tbody>
 </table>
+
+<button onclick="exportToExcel()">📁 匯出 Excel</button>
 
 <!-- 彈窗區塊 -->
 <div id="popup">

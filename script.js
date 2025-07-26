@@ -143,3 +143,31 @@ tableBody.addEventListener("click", function (e) {
     });
   }
 });
+
+function exportToExcel() {
+  if (barcodeData.length === 0) {
+    alert("目前沒有資料可匯出！");
+    return;
+  }
+
+  const sheetData = [
+    ["條碼", "數量", "單號", "掃描時間"]
+  ];
+
+  barcodeData.forEach(item => {
+    sheetData.push([item.code, item.quantity, item.order, item.time]);
+  });
+
+  const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "掃描資料");
+
+  // 產生含日期時間的檔名
+  const now = new Date();
+  const pad = n => n.toString().padStart(2, "0");
+  const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const timeStr = `${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+  const filename = `條碼掃描紀錄_${dateStr}_${timeStr}.xlsx`;
+
+  XLSX.writeFile(workbook, filename);
+}
