@@ -2,49 +2,43 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>條碼掃描器（帶輸入視窗）</title>
-  <script src="https://unpkg.com/html5-qrcode"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <link rel="stylesheet" href="./styles.css"/>
+  <title>條碼掃描器</title>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 20px; }
+    table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    input, button { padding: 8px; margin: 4px; }
+    #reader { width: 300px; margin: auto; }
+  </style>
 </head>
 <body>
 
-<h2>條碼掃描統計器（輸入數量與單號）</h2>
-<div id="reader"></div>
+  <h1>條碼掃描器</h1>
 
-<table>
-  <thead>
-    <tr>
-      <th>條碼</th>
-      <th>數量</th>
-      <th>單號</th>
-      <th>掃描時間</th>
-      <th>刪除</th>
-    </tr>
-  </thead>
-  <tbody id="barcodeTableBody"></tbody>
-</table>
+  <div id="reader"></div>
 
-<button onclick="exportToExcel()">📁 匯出 Excel</button>
-
-<!-- 彈窗區塊 -->
-<div id="popup">
-  <div id="popupContent">
-    <p><strong>掃描到的條碼：</strong><span id="scannedCodeText"></span></p>
-    <label>數量：
-      <input type="number" id="quantityInput" min="1" />
-    </label>
-    <label>單號：
-      <input type="text" id="orderInput" />
-    </label>
-    <button id="confirmBtn">✅ 確認</button>
-    <button id="cancelBtn">🔄 重新掃描</button>
+  <div>
+    <input type="text" id="manualInput" placeholder="手動輸入條碼">
+    <input type="text" id="noteInput" placeholder="備註（可選）">
+    <button onclick="addManualEntry()">加入資料</button>
+    <button onclick="exportCSV()">匯出 Excel (CSV)</button>
   </div>
-</div>
 
-<audio id="beepSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
+  <table>
+    <thead>
+      <tr>
+        <th>序號</th>
+        <th>條碼</th>
+        <th>備註</th>
+        <th>時間</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody id="dataTableBody"></tbody>
+  </table>
 
-<script src="./script.js"></script>
-
+  <script src="./script.js">
+  </script>
 </body>
 </html>

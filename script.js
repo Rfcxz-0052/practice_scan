@@ -1,173 +1,83 @@
-const barcodeData = [];
-const tableBody = document.getElementById("barcodeTableBody");
-const beepSound = document.getElementById("beepSound");
+let count = 0;
+const scannedData = [];
 
-const popup = document.getElementById("popup");
-const scannedCodeText = document.getElementById("scannedCodeText");
-const quantityInput = document.getElementById("quantityInput");
-const orderInput = document.getElementById("orderInput");
-const confirmBtn = document.getElementById("confirmBtn");
-const cancelBtn = document.getElementById("cancelBtn");
-
-let currentScannedCode = "";
-
-function formatTime(date) {
-const pad = n => n.toString().padStart(2, '0');
-return `${date.getFullYear()}/${pad(date.getMonth()+1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-}
-
-function updateTable() {
-tableBody.innerHTML = "";
-barcodeData.forEach((item, index) => {
+function renderTable() {
+  const tbody = document.getElementById("dataTableBody");
+  tbody.innerHTML = "";
+  scannedData.forEach((item, index) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-    <td>${item.code}</td>
-    <td>${item.quantity}</td>
-    <td>${item.order}</td>
-    <td>${item.time}</td>
-    <td><button onclick="deleteRow(${index})">❌</button></td>
+      <td>${index + 1}</td>
+      <td>${item.code}</td>
+      <td>${item.note || ""}</td>
+      <td>${item.time}</td>
+      <td><button onclick="deleteEntry(${index})">刪除</button></td>
     `;
-    tableBody.appendChild(row);
-});
+    tbody.appendChild(row);
+  });
 }
 
-function deleteRow(index) {
-if (confirm("確定要刪除這筆資料？")) {
-    barcodeData.splice(index, 1);
-    updateTable();
-}
-}
-
-function showPopup(code) {
-currentScannedCode = code;
-scannedCodeText.textContent = code;
-quantityInput.value = "";
-orderInput.value = "";
-popup.style.display = "flex";
+function addData(code, note = "") {
+  const now = new Date().toLocaleString();
+  scannedData.push({ code, note, time: now });
+  renderTable();
 }
 
-function hidePopup() {
-popup.style.display = "none";
-currentScannedCode = "";
+function deleteEntry(index) {
+  scannedData.splice(index, 1);
+  renderTable();
 }
 
-confirmBtn.addEventListener("click", () => {
-const quantity = parseInt(quantityInput.value);
-const order = orderInput.value.trim();
-if (!quantity || quantity <= 0 || order === "") {
-    alert("請輸入正確的數量和單號");
+function addManualEntry() {
+  const code = document.getElementById("manualInput").value.trim();
+  const note = document.getElementById("noteInput").value.trim();
+  if (!code) {
+    alert("請輸入條碼");
     return;
+  }
+  addData(code, note);
+  document.getElementById("manualInput").value = "";
+  document.getElementById("noteInput").value = "";
 }
 
-beepSound.play();
-barcodeData.push({
-    code: currentScannedCode,
-    quantity: quantity,
-    order: order,
-    time: formatTime(new Date())
-});
-updateTable();
-hidePopup();
-});
+function exportCSV() {
+  let csv = "序號,條碼,備註,時間\n";
+  scannedData.forEach((item, index) => {
+    csv += `${index + 1},"${item.code}","${item.note}","${item.time}"\n`;
+  });
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "掃描資料.csv";
+  link.click();
+}
 
-cancelBtn.addEventListener("click", () => {
-hidePopup();
-});
+function onScanSuccess(decodedText) {
+  const note = document.getElementById("noteInput").value.trim();
+  addData(decodedText, note);
+}
 
 const html5QrCode = new Html5Qrcode("reader");
-
-html5QrCode.start(
-{ facingMode: "environment" },
-{
-    fps: 10,
-    qrbox: 400,
-    formatsToSupport: [
+const config = {
+  fps: 10,
+  qrbox: { width: 250, height: 250 },
+  formatsToSupport: [
     Html5QrcodeSupportedFormats.QR_CODE,
     Html5QrcodeSupportedFormats.EAN_13,
     Html5QrcodeSupportedFormats.EAN_8,
     Html5QrcodeSupportedFormats.UPC_A,
     Html5QrcodeSupportedFormats.UPC_E,
     Html5QrcodeSupportedFormats.CODE_128,
-    Html5QrcodeSupportedFormats.CODE_39,
-    Html5QrcodeSupportedFormats.ITF
-    ]
-},
-(decodedText) => {
-    html5QrCode.pause(); // 暫停掃描直到處理完
-    showPopup(decodedText);
-},
-(error) => {
-    // 忽略錯誤
-}
-);
+    Html5QrcodeSupportedFormats.CODE_39
+  ]
+};
 
-// 編輯儲存格的功能
-tableBody.addEventListener("click", function (e) {
-  const target = e.target;
-  if (target.tagName === "TD" && target.parentElement.tagName === "TR") {
-    const rowIndex = target.parentElement.rowIndex - 1; // 減1因為thead佔一行
-    const cellIndex = target.cellIndex;
-
-    // 最後一欄是刪除鈕，不能編輯
-    if (cellIndex === 4) return;
-
-    const oldValue = target.textContent;
-    const input = document.createElement("input");
-    input.value = oldValue;
-    input.style.width = "100%";
-    target.textContent = "";
-    target.appendChild(input);
-    input.focus();
-
-    input.addEventListener("blur", function () {
-      const newValue = input.value.trim();
-      if (newValue !== "") {
-        // 根據欄位更新 barcodeData
-        if (cellIndex === 0) barcodeData[rowIndex].code = newValue;
-        if (cellIndex === 1) barcodeData[rowIndex].quantity = parseInt(newValue);
-        if (cellIndex === 2) barcodeData[rowIndex].order = newValue;
-        if (cellIndex === 3) barcodeData[rowIndex].time = newValue;
-
-        updateTable();
-      } else {
-        target.textContent = oldValue; // 若空白則還原
-      }
-    });
-
-    input.addEventListener("keydown", function (event) {
-      if (event.key === "Enter") input.blur();
-      if (event.key === "Escape") {
-        input.value = oldValue;
-        input.blur();
-      }
-    });
+Html5Qrcode.getCameras().then(devices => {
+  if (devices && devices.length) {
+    html5QrCode.start(
+      { facingMode: "environment" },
+      config,
+      onScanSuccess
+    );
   }
-});
-
-function exportToExcel() {
-  if (barcodeData.length === 0) {
-    alert("目前沒有資料可匯出！");
-    return;
-  }
-
-  const sheetData = [
-    ["條碼", "數量", "單號", "掃描時間"]
-  ];
-
-  barcodeData.forEach(item => {
-    sheetData.push([item.code, item.quantity, item.order, item.time]);
-  });
-
-  const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "掃描資料");
-
-  // 產生含日期時間的檔名
-  const now = new Date();
-  const pad = n => n.toString().padStart(2, "0");
-  const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-  const timeStr = `${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
-  const filename = `條碼掃描紀錄_${dateStr}_${timeStr}.xlsx`;
-
-  XLSX.writeFile(workbook, filename);
-}
+}).catch(err => console.error("Camera error", err));
