@@ -63,7 +63,7 @@ Html5Qrcode.getCameras().then(devices => {
   if (devices && devices.length) {
     const config = {
       fps: 10,
-      qrbox: { width: 250, height: 250 },
+      qrbox: { width: 400, height: 400 },
       formatsToSupport: [
         Html5QrcodeSupportedFormats.QR_CODE,
         Html5QrcodeSupportedFormats.EAN_13,
