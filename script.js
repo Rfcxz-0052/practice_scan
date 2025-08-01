@@ -8,6 +8,7 @@ function renderTable() {
     row.innerHTML = `
       <td>${item.code}</td>
       <td>${item.time}</td>
+      <td>${item.quantity}</td>
       <td>${item.note}</td>
       <td><button onclick="deleteRow(${index})">🗑️ 刪除</button></td>
     `;
@@ -16,9 +17,10 @@ function renderTable() {
 }
 
 function addResult(code) {
+  const productNumber = document.getElementById('productQuantity').value;
   const customNote = document.getElementById('customInfo').value;
   const time = new Date().toLocaleString();
-  scannedResults.push({ code, time, note: customNote });
+  scannedResults.push({ code, time, quantity: productNumber, note: customNote });
   renderTable();
 }
 
@@ -37,9 +39,9 @@ function manualAdd() {
 }
 
 function exportExcel() {
-  const ws_data = [["條碼", "時間", "自訂資訊"]];
+  const ws_data = [["條碼", "時間", "數量", "單號"]];
   scannedResults.forEach(r => {
-    ws_data.push([r.code, r.time, r.note]);
+    ws_data.push([r.code, r.time, r.quantity, r.note]);
   });
 
   const ws = XLSX.utils.aoa_to_sheet(ws_data);
