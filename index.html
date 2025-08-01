@@ -1,44 +1,38 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <title>條碼掃描器</title>
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
-  <style>
-    body { font-family: sans-serif; text-align: center; padding: 20px; }
-    table { width: 100%; margin-top: 20px; border-collapse: collapse; }
-    th, td { border: 1px solid #ccc; padding: 8px; }
-    input, button { padding: 8px; margin: 4px; }
-    #reader { width: 300px; margin: auto; }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>條碼掃描與匯出</title>
+  <script src="https://unpkg.com/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="./styles.css"/>
 </head>
 <body>
 
-  <h1>條碼掃描器</h1>
+  <h1>條碼掃描器 + 匯出 Excel</h1>
 
   <div id="reader"></div>
 
   <div>
-    <input type="text" id="manualInput" placeholder="手動輸入條碼">
-    <input type="text" id="noteInput" placeholder="備註（可選）">
-    <button onclick="addManualEntry()">加入資料</button>
-    <button onclick="exportCSV()">匯出 Excel (CSV)</button>
+    <input type="text" id="manual-input" placeholder="手動輸入條碼">
+    <button onclick="addManualCode()">新增</button>
   </div>
 
-  <table>
+  <button onclick="exportToExcel()">匯出 Excel</button>
+
+  <table id="result-table">
     <thead>
       <tr>
         <th>序號</th>
-        <th>條碼</th>
-        <th>備註</th>
+        <th>條碼內容</th>
         <th>時間</th>
-        <th>操作</th>
       </tr>
     </thead>
-    <tbody id="dataTableBody"></tbody>
+    <tbody></tbody>
   </table>
 
-  <script src="./script.js">
-  </script>
+  <script src="./script.js"></script>
+
 </body>
 </html>
