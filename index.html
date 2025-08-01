@@ -1,48 +1,50 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>條碼掃描器</title>
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <meta charset="UTF-8" />
+  <title>條碼掃描器（可編輯 + 匯出 Excel）</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="./styles.css"/>
 </head>
 <body>
 
-<h2>📷 條碼掃描器</h2>
-
-<label>數量:
-  <input type="text" id="productQuantity" placeholder="請輸入數量">
-</label><br>
-
-<label>單號:
-  <input type="text" id="customInfo" placeholder="請輸入單號">
-</label><br>
-
+<h2>條碼掃描統計器（可編輯 + 匯出 Excel）</h2>
 <div id="reader"></div>
 
-<label>手動輸入條碼：
-  <input type="text" id="manualInput" placeholder="輸入條碼">
-  <button onclick="manualAdd()">➕ 新增</button>
-</label>
-
-<h3>📋 掃描記錄</h3>
-<table id="resultTable">
+<table>
   <thead>
     <tr>
       <th>條碼</th>
-      <th>時間</th>
       <th>數量</th>
       <th>單號</th>
-      <th>操作</th>
+      <th>掃描時間</th>
+      <th>刪除</th>
     </tr>
   </thead>
-  <tbody id="resultBody"></tbody>
+  <tbody id="barcodeTableBody"></tbody>
 </table>
 
-<button onclick="exportExcel()">📥 匯出 Excel</button>
+<button onclick="exportToExcel()">📁 匯出 Excel</button>
+
+<div id="popup">
+  <div id="popupContent">
+    <p><strong>掃描到的條碼：</strong><span id="scannedCodeText"></span></p>
+    <label>數量：
+      <input type="number" id="quantityInput" min="1" />
+    </label>
+    <label>單號：
+      <input type="text" id="orderInput" />
+    </label>
+    <button id="confirmBtn">✅ 確認</button>
+    <button id="cancelBtn">🔄 重新掃描</button>
+  </div>
+</div>
+
+<audio id="beepSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
 
 <script src="./script.js"></script>
 
 </body>
 </html>
+
