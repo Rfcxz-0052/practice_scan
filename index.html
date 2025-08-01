@@ -2,37 +2,42 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>條碼掃描與匯出</title>
-  <script src="https://unpkg.com/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
+  <title>條碼掃描器</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="./styles.css"/>
 </head>
 <body>
 
-  <h1>條碼掃描器 + 匯出 Excel</h1>
+<h2>📷 條碼掃描器</h2>
 
-  <div id="reader"></div>
+<div id="reader"></div>
 
-  <div>
-    <input type="text" id="manual-input" placeholder="手動輸入條碼">
-    <button onclick="addManualCode()">新增</button>
-  </div>
+<label>自訂資訊：
+  <input type="text" id="customInfo" placeholder="例如：地點、備註等">
+</label><br>
 
-  <button onclick="exportToExcel()">匯出 Excel</button>
+<label>手動輸入條碼：
+  <input type="text" id="manualInput" placeholder="輸入條碼">
+  <button onclick="manualAdd()">➕ 新增</button>
+</label>
 
-  <table id="result-table">
-    <thead>
-      <tr>
-        <th>序號</th>
-        <th>條碼內容</th>
-        <th>時間</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+<h3>📋 掃描記錄</h3>
+<table id="resultTable">
+  <thead>
+    <tr>
+      <th>條碼</th>
+      <th>時間</th>
+      <th>自訂資訊</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody id="resultBody"></tbody>
+</table>
 
-  <script src="./script.js"></script>
+<button onclick="exportExcel()">📥 匯出 Excel</button>
+
+<script src="./script.js"></script>
 
 </body>
 </html>
